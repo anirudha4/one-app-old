@@ -29,8 +29,33 @@ export function* coreSaga() {
     // check if access token is present
     const accessToken = yield call(getAccessTokenFromLocalStore);
     if (accessToken) {
-        yield call(authorize, accessToken);
-        yield call(loadDataForOrganization, accessToken);
+        const user = yield call(authorize, accessToken);
+        const initData = yield call(loadDataForOrganization, accessToken);
+        if (user && initData) {
+            const organization = initData.included.organization || {};
+            pendo.identify({
+                visitor: {
+                    id: String(user.id),
+                    email: user.email,
+                    full_name: user.name,
+                    username: user.username,
+                    isAdmin: user.isAdmin,
+                    isEmailVerified: user.isEmailVerified,
+                    registrationType: user.registrationType,
+                    color: user.color,
+                    organizationId: String(user.organizationId),
+                    createdAt: user.createdAt,
+                    updatedAt: user.updatedAt
+                },
+                account: {
+                    id: String(organization.id),
+                    name: organization.name,
+                    isParentOrganization: organization.isParentOrganization,
+                    createdAt: organization.createdAt,
+                    updatedAt: organization.updatedAt
+                }
+            });
+        }
     }
     yield put(coreInitialized());
 }

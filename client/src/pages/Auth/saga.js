@@ -47,6 +47,7 @@ export function* loginWorker({ payload }) {
 }
 
 export function* logoutWorker() {
+  pendo.clearSession();
   yield call(clearAccessTokenToLocalStore);
   window.location.href = '/auth';
 }
