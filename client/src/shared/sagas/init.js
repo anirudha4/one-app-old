@@ -9,4 +9,5 @@ export function * loadDataForOrganization(accessToken) {
         user,
         ...included
     }))
+    return { user, included };
 }
